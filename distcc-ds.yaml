@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: distcc
+  namespace: devtools
+  labels:
+    app: distcc-devtool
+spec:
+  selector:
+    matchLabels:
+      name: distcc-devtool
+  template:
+    metadata:
+      labels:
+        name: distcc-devtool
+    spec:
+      containers:
+        - name: distcc
+          image: fdebene/distcc
+          ports:
+            - containerPort: 3632
+              hostPort: 3632
+              protocol: TCP
+          args:
+            - distccd
+            - --daemon
+            - --no-fork
+            - --allow
+            - 0.0.0.0/0
+            - --listen
+            - 0.0.0.0
+            - --verbose
+          env:
+            - name: ALLOW
+              value: 10.0.0.0/16

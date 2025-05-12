@@ -1,0 +1,14 @@
+# distcc-nodeport.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: distcc-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: distcc
+  ports:
+    - name: distcc
+      port: 3632
+      targetPort: 3632
+      nodePort: 30362  # you can pick a port in the 30000–32767 range
