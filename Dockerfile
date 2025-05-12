@@ -3,7 +3,7 @@ FROM gentoo/stage3:latest
 ENV FEATURES="-ipc-sandbox -network-sandbox"
 ENV USE="bindist -X"
 
-# Sync the tree and unmask crossdev explicitly
+# Sync the tree and unmask crossdev explicitly - for eal this time
 RUN emerge-webrsync && \
     emerge --sync && \
     echo "sys-devel/crossdev" >> /etc/portage/package.accept_keywords/crossdev && \
