@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: distcc
+  labels:
+    app: distcc
+spec:
+  selector:
+    matchLabels:
+      app: distcc
+  template:
+    metadata:
+      labels:
+        app: distcc
+    spec:
+      imagePullSecrets:
+        - name: ghcr-creds
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+      - name: distcc
+        image: ghcr.io/felipedbene/distcc:latest
+        ports:
+        - containerPort: 3632
+        args: ["--no-fork", "--no-detach", "--allow=0.0.0.0/0", "--log-stderr", "--verbose"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distcc
+spec:
+  type: NodePort
+  selector:
+    app: distcc
+  ports:
+    - port: 3632
+      targetPort: 3632
+      nodePort: 30632  # You can change this if needed
