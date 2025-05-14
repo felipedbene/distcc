@@ -22,6 +22,7 @@ spec:
       containers:
       - name: distcc
         image: ghcr.io/felipedbene/distcc:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3632
         args: ["--no-fork", "--no-detach", "--allow=0.0.0.0/0", "--log-stderr", "--verbose"]
