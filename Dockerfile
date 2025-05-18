@@ -6,7 +6,7 @@ ENV USE="bindist -X cxx"
 # Sync Portage and install crossdev
 RUN emerge-webrsync && \
     echo "sys-devel/crossdev" >> /etc/portage/package.accept_keywords/crossdev && \
-    emerge --quiet sys-devel/crossdev
+    emerge --quiet sys-devel/crossdev sys-devel/distcc
 
 # Set up local overlay for crossdev output
 RUN mkdir -p /etc/portage/repos.conf /var/db/repos/localrepo && \
