@@ -15,7 +15,9 @@ RUN mkdir -p /etc/portage/repos.conf && \
     echo '[localrepo]' > /etc/portage/repos.conf/localrepo.conf && \
     echo 'location = /var/db/repos/localrepo' >> /etc/portage/repos.conf/localrepo.conf && \
     echo 'masters = gentoo' >> /etc/portage/repos.conf/localrepo.conf && \
-    echo 'auto-sync = no' >> /etc/portage/repos.conf/localrepo.conf
+    echo 'auto-sync = no' >> /etc/portage/repos.conf/localrepo.conf && \
+    echo '/usr/bin/powerpc-unknown-linux-gnu-g++' > /usr/lib/distcc/whitelist
+
 
 # Build the PPC toolchain
 RUN crossdev --ov-output /var/db/repos/localrepo --target powerpc-unknown-linux-gnu
