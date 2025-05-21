@@ -21,14 +21,13 @@ EOF
 # 4) Build the PPC cross-toolchain
 RUN crossdev --ov-output /var/db/repos/localrepo --target powerpc-unknown-linux-gnu
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 5) **NEW**: pull in the *target* C++ runtime packages so your node can link:
+# 5) Pull in the *target* C++ runtime packages so your node can link:
 RUN emerge --quiet \
       powerpc-unknown-linux-gnu-libstdc++ \
       powerpc-unknown-linux-gnu-libgcc \
       sys-libs/libunwind
 
-# 6) **NEW**: ensure the cross-sys-root’s lib dirs are on your ld search path
+# 6) Ensure the cross-sys-root’s lib dirs are on your ld search path
 RUN echo "/usr/powerpc-unknown-linux-gnu/sys-root/usr/lib" > /etc/ld.so.conf.d/distcc.conf && \
     echo "/usr/powerpc-unknown-linux-gnu/sys-root/usr/lib64" >> /etc/ld.so.conf.d/distcc.conf && \
     ldconfig
@@ -44,7 +43,7 @@ RUN mkdir -p /usr/lib/distcc && \
                powerpc-unknown-linux-gnu-ld;   \
     do echo "/usr/bin/$bin" >> /usr/lib/distcc/whitelist; done
 
-# 8) (Optional) if you want unprefixed gcc/g++ names in PATH for ease of use
+# 8) Unprefixed gcc/g++ names in PATH for ease of use
 RUN ln -sf /usr/bin/powerpc-unknown-linux-gnu-gcc /usr/local/bin/gcc && \
     ln -sf /usr/bin/powerpc-unknown-linux-gnu-g++ /usr/local/bin/g++
 
