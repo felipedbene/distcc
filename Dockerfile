@@ -6,10 +6,11 @@ ENV USE="bindist -X cxx"
 
 # 2) Sync and pull in crossdev + distcc
 RUN emerge-webrsync && \
-    echo "sys-devel/crossdev" >> /etc/portage/package.accept_keywords && \
+    mkdir -p /etc/portage/package.accept_keywords && \
+    echo "sys-devel/crossdev" >> /etc/portage/package.accept_keywords/crossdev && \
     emerge --quiet sys-devel/crossdev sys-devel/distcc
 
-# 3) Set up your overlay for crossdev
+# 3) Set up overlay for crossdev output
 RUN mkdir -p /etc/portage/repos.conf /var/db/repos/localrepo && \
     cat <<EOF > /etc/portage/repos.conf/localrepo.conf
 [localrepo]
@@ -18,21 +19,15 @@ masters = gentoo
 auto-sync = no
 EOF
 
-# 4) Build the PPC cross-toolchain
-RUN crossdev --ov-output /var/db/repos/localrepo --target powerpc-unknown-linux-gnu
+# 4) Build the PPC cross-toolchain using GCC 14
+RUN crossdev --ov-output /var/db/repos/localrepo --target powerpc-unknown-linux-gnu --gcc 14.2.1
 
-# 5) Pull in the *target* C++ runtime packages so your node can link:
-RUN emerge --quiet \
-      powerpc-unknown-linux-gnu-libstdc++ \
-      powerpc-unknown-linux-gnu-libgcc \
-      sys-libs/libunwind
-
-# 6) Ensure the cross-sys-root’s lib dirs are on your ld search path
+# 5) Set ld.so search path for target sysroot
 RUN echo "/usr/powerpc-unknown-linux-gnu/sys-root/usr/lib" > /etc/ld.so.conf.d/distcc.conf && \
     echo "/usr/powerpc-unknown-linux-gnu/sys-root/usr/lib64" >> /etc/ld.so.conf.d/distcc.conf && \
     ldconfig
 
-# 7) Whitelist *all* of the cross-compiler toolchain so distcc can invoke them:
+# 6) Whitelist all cross-compiler binaries for distcc
 RUN mkdir -p /usr/lib/distcc && \
     for bin in powerpc-unknown-linux-gnu-gcc  \
                powerpc-unknown-linux-gnu-g++  \
@@ -43,9 +38,18 @@ RUN mkdir -p /usr/lib/distcc && \
                powerpc-unknown-linux-gnu-ld;   \
     do echo "/usr/bin/$bin" >> /usr/lib/distcc/whitelist; done
 
-# 8) Unprefixed gcc/g++ names in PATH for ease of use
+# 7) Unprefixed symlinks for convenience
 RUN ln -sf /usr/bin/powerpc-unknown-linux-gnu-gcc /usr/local/bin/gcc && \
     ln -sf /usr/bin/powerpc-unknown-linux-gnu-g++ /usr/local/bin/g++
+
+# 8) Set GCC 14 as the active version and load updated environment
+RUN gcc-config powerpc-unknown-linux-gnu-14 && . /etc/profile
+
+# 9) Sanity check the toolchain selection
+RUN gcc-config -l && gcc -v
+
+# 10) Verify cross-compiler works
+RUN powerpc-unknown-linux-gnu-gcc --version
 
 EXPOSE 3632
 
