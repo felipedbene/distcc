@@ -21,10 +21,11 @@ RUN mkdir -p /etc/portage/package.unmask && \
     gcc-config 1
 
 # Configure overlay for crossdev output
-RUN mkdir -p /etc/portage/repos.conf /var/db/repos/localrepo && \
+RUN mkdir -p /etc/portage/repos.conf \
+           /var/db/repos/localrepo/metadata && \
     echo "[localrepo]" > /etc/portage/repos.conf/localrepo.conf && \
     echo "location = /var/db/repos/localrepo" >> /etc/portage/repos.conf/localrepo.conf && \
-    echo "masters = gentoo" >> /etc/portage/repos.localrepo/metadata/layout.conf && \
+    echo "masters = gentoo" > /var/db/repos/localrepo/metadata/layout.conf && \
     echo "auto-sync = no" >> /etc/portage/repos.conf/localrepo.conf
 
 # --- Build PPC cross toolchain ---
