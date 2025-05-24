@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+###############################################################################
+# 1) Builder: unpack the Linux/ppc Go compiler you already extracted locally  #
+###############################################################################
+FROM alpine:3.18 AS builder
+LABEL stage=builder
+
+# install tar so we can unpack
+RUN apk add --no-cache tar                                              [oai_citation:0‡Medium](https://medium.com/%40kittipat_1413/optimizing-multi-stage-builds-with-dockerfile-in-golang-a2ee8ed37ec6?utm_source=chatgpt.com)
+
+# copy your tarball (make sure to build with the tar next to this Dockerfile)
+COPY go1.24.3.linux-ppc.tar.gz  /tmp/go.tar.gz
+
+# unpack into /usr/local/go
+RUN mkdir -p /usr/local && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz                                                    [oai_citation:1‡Docker Documentation](https://docs.docker.com/guides/golang/build-images/?utm_source=chatgpt.com)
+
+###############################################################################
+# 2) Final: slim image containing only Go runtime (no build tools)           #
+###############################################################################
+FROM alpine:3.18 AS final
+LABEL stage=final
+
+# copy the compiler tree from the builder
+COPY --from=builder /usr/local/go /usr/local/go
+
+# set up environment
+ENV GOROOT=/usr/local/go                                                 [oai_citation:2‡Docker Documentation](https://docs.docker.com/build/building/multi-stage/?utm_source=chatgpt.com)
+ENV PATH=$GOROOT/bin:$PATH                                                [oai_citation:3‡Reddit](https://www.reddit.com/r/golang/comments/t7hsps/building_a_docker_image_for_a_go_programm/?utm_source=chatgpt.com)
+
+# default to printing version (override with 'go build', etc.)
+ENTRYPOINT ["go", "version"]
