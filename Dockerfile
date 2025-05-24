@@ -12,11 +12,13 @@ RUN emerge-webrsync && \
     emerge --quiet sys-devel/crossdev sys-devel/distcc
 
 # Unmask and install GCC 14.2.1
-RUN mkdir -p /etc/portage/package.unmask && \
-    echo "=sys-devel/gcc-14.2.1_p20241221 **" >> /etc/portage/package.accept_keywords/gcc && \
+RUN mkdir -p /etc/portage/package.unmask /etc/portage/package.accept_keywords && \
+    echo "=sys-devel/gcc-14.2.1_p20241221 **" >> /etc/portage/package.accept_keywords && \
     echo "=sys-devel/gcc-14.2.1_p20241221" >> /etc/portage/package.unmask/gcc && \
-    emerge --quiet =sys-devel/gcc-14.2.1_p20241221 && \
-    gcc-config 1
+    emerge -v1 =sys-devel/gcc-14.2.1_p20241221 || (tail -n 100 /var/tmp/portage/sys-devel/gcc-14.2.1_p20241221/temp/build.log && exit 1) && \
+    gcc-config 1 && \
+    . /etc/profile && \
+    emerge -v1 libstdc++ || true
 
 # Configure overlay for crossdev
 RUN mkdir -p /etc/portage/repos.conf /var/db/repos/localrepo/metadata && \
