@@ -55,10 +55,14 @@ RUN emerge-webrsync && \
 # Copy cross toolchain from builder
 COPY --from=builder /usr/bin/powerpc-unknown-linux-gnu-* /usr/bin/
 COPY --from=builder /usr/libexec/gcc /usr/libexec/gcc
+COPY --from=builder /usr/libexec/gcc/powerpc-unknown-linux-gnu /usr/libexec/gcc/powerpc-unknown-linux-gnu
 COPY --from=builder /usr/lib/gcc /usr/lib/gcc
+COPY --from=builder /usr/lib/gcc/powerpc-unknown-linux-gnu /usr/lib/gcc/powerpc-unknown-linux-gnu
 COPY --from=builder /usr/lib/distcc /usr/lib/distcc
 COPY --from=builder /usr/local/bin/gcc-ppc /usr/local/bin/gcc-ppc
 COPY --from=builder /usr/local/bin/g++-ppc /usr/local/bin/g++-ppc
+# Full sysroot for static/dynamic linking
+COPY --from=builder /usr/powerpc-unknown-linux-gnu /usr/powerpc-unknown-linux-gnu
 
 # Whitelist compilers for distcc
 RUN mkdir -p /usr/lib/distcc && \
